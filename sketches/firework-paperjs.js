@@ -55,7 +55,8 @@ class FireworkPaperSketch {
     this.items = [];
 
     const center = paper.view.center;
-    const maxRadius = Math.min(paper.view.size.width, paper.view.size.height) * 0.4;
+    const margin = 50; // Account for text size
+    const maxRadius = Math.min(paper.view.size.width - 2 * margin, paper.view.size.height - 2 * margin) * 0.4;
     
     // Create firework pattern
     for (let ray = 0; ray < this.settings.nRays; ray++) {
@@ -63,6 +64,9 @@ class FireworkPaperSketch {
       let currentRadius = 0;
 
       for (let element = 0; element < this.settings.nElements; element++) {
+        // Stop if we would exceed the maximum radius
+        if (currentRadius > maxRadius) break;
+        
         const x = center.x + Math.cos(angle) * currentRadius;
         const y = center.y + Math.sin(angle) * currentRadius;
         const position = new paper.Point(x, y);

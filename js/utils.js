@@ -155,17 +155,30 @@ function setupCanvas() {
   const canvas = document.getElementById('paper-canvas');
   paper.setup(canvas);
   
-  // Make canvas responsive
+  // Let Paper.js handle the resize with proper aspect ratio
   function resizeCanvas() {
     const canvas = document.getElementById('paper-canvas');
-    const container = canvas.parentElement;
-    canvas.width = container.clientWidth;
-    canvas.height = container.clientHeight;
-    paper.view.viewSize = new paper.Size(canvas.width, canvas.height);
+    
+    // Get the canvas's actual rendered size (after flexbox layout)
+    const rect = canvas.getBoundingClientRect();
+    const canvasWidth = rect.width;
+    const canvasHeight = rect.height;
+    
+    // Update the Paper.js view size to match the canvas size
+    paper.view.viewSize = new paper.Size(canvasWidth, canvasHeight);
   }
   
+  // Initial resize after DOM is ready
+  setTimeout(resizeCanvas, 0);
+  
+  // Listen for window resize events
   window.addEventListener('resize', resizeCanvas);
-  resizeCanvas();
+  
+  // Listen for any layout changes that might affect the canvas container
+  if (window.ResizeObserver) {
+    const resizeObserver = new ResizeObserver(resizeCanvas);
+    resizeObserver.observe(document.body);
+  }
   
   return canvas;
 } 

@@ -9,8 +9,9 @@ class TextPathPaperSketch {
     window.seed = this.seed;
     
     this.settings = {
-      text: "One Ring to rule them all, One Ring to find them, One Ring to bring them all and in the darkness bind them",
+      text: "LLAL",
       fontSize: 18,
+      fontWidth: 100, // 50=Condensed, 100=Regular, 150=Extended, 200=Expanded
       showPath: true,
       pathStyle: 'curve', // 'curve', 'circle', 'spiral'
       curveComplexity: 3,
@@ -71,6 +72,8 @@ class TextPathPaperSketch {
     this.createAlignedText(this.settings.text, path, {
       fontSize: this.settings.fontSize,
       fontFamily: 'LLAL-linear',
+      fontWeight: 'normal',
+      fontWidth: this.settings.fontWidth,
       fillColor: this.settings.textColor
     });
   }
@@ -83,9 +86,31 @@ class TextPathPaperSketch {
     const points = [];
     const segments = [];
     
+    // Add some margin to keep the curve well within bounds
+    const margin = 20;
+    const usableBounds = new paper.Rectangle(
+      bounds.left + margin,
+      bounds.top + margin,
+      bounds.width - 2 * margin,
+      bounds.height - 2 * margin
+    );
+    
     for (let i = 0; i <= complexity; i++) {
-      const x = bounds.left + (bounds.width / complexity) * i + (rnd() - 0.5) * bounds.width * 0.2;
-      const y = bounds.center.y + (rnd() - 0.5) * bounds.height * 0.6;
+      const baseX = usableBounds.left + (usableBounds.width / complexity) * i;
+      const baseY = usableBounds.center.y;
+      
+      // Add randomness but constrain to usable bounds
+      const x = constrain(
+        baseX + (rnd() - 0.5) * usableBounds.width * 0.2,
+        usableBounds.left,
+        usableBounds.right
+      );
+      const y = constrain(
+        baseY + (rnd() - 0.5) * usableBounds.height * 0.6,
+        usableBounds.top,
+        usableBounds.bottom
+      );
+      
       points.push(new paper.Point(x, y));
     }
     
@@ -123,16 +148,18 @@ class TextPathPaperSketch {
 
   createCirclePath() {
     const bounds = paper.view.bounds;
-    const radius = Math.min(bounds.width, bounds.height) * 0.3;
+    const margin = 20;
+    const maxRadius = Math.min(bounds.width - 2 * margin, bounds.height - 2 * margin) * 0.4;
     const center = bounds.center;
     
-    return new paper.Path.Circle(center, radius);
+    return new paper.Path.Circle(center, maxRadius);
   }
 
   createSpiralPath() {
     const bounds = paper.view.bounds;
     const center = bounds.center;
-    const maxRadius = Math.min(bounds.width, bounds.height) * 0.4;
+    const margin = 20;
+    const maxRadius = Math.min(bounds.width - 2 * margin, bounds.height - 2 * margin) * 0.4;
     const turns = 3;
     const points = [];
     
@@ -147,7 +174,7 @@ class TextPathPaperSketch {
     return new paper.Path(points);
   }
 
-  createAlignedText(str, path, style) {
+    createAlignedText(str, path, style) {
     if (str && str.length > 0 && path) {
       // create PointText object for each glyph
       var glyphTexts = [];
@@ -156,14 +183,16 @@ class TextPathPaperSketch {
         glyphTexts[i].justification = "center";
         this.items.push(glyphTexts[i]);
       }
-      
+
+      // No additional styling needed - font family is set in createPointText
+
       // for each glyph find center xOffset
       var xOffsets = [0];
       for (var i = 1; i < str.length; i++) {
-        var pairText = this.createPointText(str.substring(i - 1, i + 1), style);
-        pairText.remove();
+        var pairText = this.createStyledTextForMeasurement(str.substring(i - 1, i + 1), style);
         xOffsets[i] = xOffsets[i - 1] + pairText.bounds.width - 
           glyphTexts[i - 1].bounds.width / 2 - glyphTexts[i].bounds.width / 2;
+        pairText.remove();
       }
       
       // set point for each glyph and rotate glyph around the point
@@ -193,17 +222,62 @@ class TextPathPaperSketch {
     }
   }
 
+  // Helper function to get font family name for font width
+  getFontFamilyForWidth(fontWidth) {
+    switch(fontWidth) {
+      case 50: return 'LLAL-linear-condensed';
+      case 100: return 'LLAL-linear-regular';
+      case 150: return 'LLAL-linear-extended';
+      case 200: return 'LLAL-linear-expanded';
+      default: return 'LLAL-linear-regular';
+    }
+  }
+
   // create a PointText object for a string and a style
   createPointText(str, style) {
     var text = new paper.PointText();
     text.content = str;
     if (style) {
-      if (style.font) text.font = style.font;
-      if (style.fontFamily) text.fontFamily = style.fontFamily;
-      if (style.fontSize) text.fontSize = style.fontSize;
-      if (style.fontWeight) text.fontWeight = style.fontWeight;
-      if (style.fillColor) text.fillColor = style.fillColor;
+      // Get the appropriate font family based on width setting
+      let fontFamily = style.fontFamily || 'LLAL-linear';
+      if (style.fontWidth) {
+        fontFamily = this.getFontFamilyForWidth(style.fontWidth);
+      }
+      
+      // Apply the entire style object, similar to other sketches
+      text.style = {
+        fontFamily: fontFamily,
+        fontSize: style.fontSize || 16,
+        fontWeight: style.fontWeight || 'normal',
+        fillColor: style.fillColor || 'black',
+        ...style
+      };
     }
+    return text;
+  }
+
+  // Create a text element with proper font variation styling for measurement
+  createStyledTextForMeasurement(str, style) {
+    var text = new paper.PointText();
+    text.content = str;
+    
+    // Get the appropriate font family based on width setting
+    let fontFamily = style.fontFamily || 'LLAL-linear';
+    if (style.fontWidth) {
+      fontFamily = this.getFontFamilyForWidth(style.fontWidth);
+    }
+    
+    text.style = {
+      fontFamily: fontFamily,
+      fontSize: style.fontSize || 16,
+      fontWeight: style.fontWeight || 'normal',
+      fillColor: style.fillColor || 'black',
+      ...style
+    };
+    
+    // Add to project temporarily for measurement
+    paper.project.activeLayer.addChild(text);
+    
     return text;
   }
 
@@ -212,20 +286,30 @@ class TextPathPaperSketch {
       <div class="control-group">
         <h4>Text Settings</h4>
         
-        <label>
-          Text Content:
-          <textarea id="text-input" rows="3" style="width: 100%; margin-top: 5px; padding: 5px; border: 1px solid #ddd; border-radius: 3px; font-size: 12px;">${this.settings.text}</textarea>
-        </label>
+                 <label>
+           Text Content:
+           <textarea id="text-input" rows="2" style="width: 100%; margin-top: 5px; padding: 5px; border: 1px solid #ddd; border-radius: 3px; font-size: 12px;">${this.settings.text}</textarea>
+         </label>
         
-        <label>
-          Font Size: <span id="fontSize-value">${this.settings.fontSize}</span>
-          <input type="range" id="fontSize-slider" min="8" max="48" value="${this.settings.fontSize}" style="width: 100%;">
-        </label>
-        
-        <label>
-          Text Color:
-          <input type="color" id="textColor-input" value="${this.settings.textColor}" style="width: 50px; height: 30px;">
-        </label>
+                 <label>
+           Font Size: <span id="fontSize-value">${this.settings.fontSize}</span>
+           <input type="range" id="fontSize-slider" min="8" max="48" value="${this.settings.fontSize}" style="width: 100%;">
+         </label>
+         
+         <label>
+           Font Width:
+           <select id="fontWidth-select" style="width: 100%; padding: 5px; margin-top: 5px;">
+             <option value="50" ${this.settings.fontWidth === 50 ? 'selected' : ''}>Condensed (50)</option>
+             <option value="100" ${this.settings.fontWidth === 100 ? 'selected' : ''}>Regular (100)</option>
+             <option value="150" ${this.settings.fontWidth === 150 ? 'selected' : ''}>Extended (150)</option>
+             <option value="200" ${this.settings.fontWidth === 200 ? 'selected' : ''}>Expanded (200)</option>
+           </select>
+         </label>
+         
+         <label>
+           Text Color:
+           <input type="color" id="textColor-input" value="${this.settings.textColor}" style="width: 50px; height: 30px;">
+         </label>
       </div>
 
       <div class="control-group">
@@ -271,6 +355,11 @@ class TextPathPaperSketch {
     document.getElementById('fontSize-slider').addEventListener('input', (e) => {
       this.settings.fontSize = parseInt(e.target.value);
       document.getElementById('fontSize-value').textContent = this.settings.fontSize;
+      this.updateSketch();
+    });
+
+    document.getElementById('fontWidth-select').addEventListener('change', (e) => {
+      this.settings.fontWidth = parseInt(e.target.value);
       this.updateSketch();
     });
 

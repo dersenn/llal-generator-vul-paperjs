@@ -5,6 +5,57 @@
   src: url('assets/fonts/LLALLogoLinearGX.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
+  font-variation-settings: "wdth" 100;
+}
+
+/* LLAL Font Width Variations - Separate font families for Paper.js compatibility */
+@font-face {
+  font-family: 'LLAL-linear-condensed';
+  src: url('assets/fonts/LLALLogoLinearGX.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-variation-settings: "wdth" 50;
+}
+
+@font-face {
+  font-family: 'LLAL-linear-regular';
+  src: url('assets/fonts/LLALLogoLinearGX.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-variation-settings: "wdth" 100;
+}
+
+@font-face {
+  font-family: 'LLAL-linear-extended';
+  src: url('assets/fonts/LLALLogoLinearGX.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-variation-settings: "wdth" 150;
+}
+
+@font-face {
+  font-family: 'LLAL-linear-expanded';
+  src: url('assets/fonts/LLALLogoLinearGX.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-variation-settings: "wdth" 200;
+}
+
+/* CSS Classes (for DOM elements if needed) */
+.llal-condensed {
+  font-variation-settings: "wdth" 50 !important;
+}
+
+.llal-regular {
+  font-variation-settings: "wdth" 100 !important;
+}
+
+.llal-extended {
+  font-variation-settings: "wdth" 150 !important;
+}
+
+.llal-expanded {
+  font-variation-settings: "wdth" 200 !important;
 }
 
 * {
@@ -124,9 +175,8 @@ body {
   background-color: #ffffff;
   cursor: crosshair;
   display: block;
-  position: relative;
-  z-index: 1;
   min-width: 0;
+  min-height: 0;
 }
 
 /* Responsive design */
@@ -140,10 +190,14 @@ body {
     height: 200px;
     border-right: none;
     border-bottom: 1px solid #ddd;
+    flex-shrink: 0;
   }
   
   #paper-canvas {
-    height: calc(100vh - 200px);
+    flex: 1;
+    width: 100%;
+    height: auto;
+    min-height: calc(100vh - 200px);
   }
 }
 

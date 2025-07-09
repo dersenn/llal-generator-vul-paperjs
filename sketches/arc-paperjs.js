@@ -72,8 +72,16 @@ class ArcPaperSketch {
   }
 
   createConcentricArcs(center) {
+    // Calculate maximum allowable radius based on canvas size
+    const margin = 50; // Account for text size
+    const maxRadius = Math.min(paper.view.size.width - 2 * margin, paper.view.size.height - 2 * margin) * 0.4;
+    
     for (let arc = 0; arc < this.settings.nArcs; arc++) {
       const currentRadius = this.settings.radius + (arc * this.settings.radiusSpacing);
+      
+      // Skip this arc if it would exceed the maximum radius
+      if (currentRadius > maxRadius) continue;
+      
       const arcSpan = rad(this.settings.arcSpan);
       const startAngle = rad(this.settings.startAngle);
       
@@ -97,6 +105,10 @@ class ArcPaperSketch {
   }
 
   createSpiral(center) {
+    // Calculate maximum allowable radius based on canvas size
+    const margin = 50; // Account for text size
+    const maxRadius = Math.min(paper.view.size.width - 2 * margin, paper.view.size.height - 2 * margin) * 0.4;
+    
     const totalElements = this.settings.nArcs * 20; // More elements for spiral
     const angleStep = rad(10); // Smaller angle steps
     const radiusStep = this.settings.radiusSpacing / 20;
@@ -104,6 +116,9 @@ class ArcPaperSketch {
     for (let i = 0; i < totalElements; i++) {
       const angle = i * angleStep;
       const radius = this.settings.radius + (i * radiusStep);
+      
+      // Stop if radius exceeds maximum
+      if (radius > maxRadius) break;
       
       const x = center.x + Math.cos(angle) * radius;
       const y = center.y + Math.sin(angle) * radius;
@@ -116,12 +131,19 @@ class ArcPaperSketch {
   }
 
   createCone(center) {
-    const coneHeight = this.settings.radius * 2;
-    const maxRadius = this.settings.radius;
+    // Calculate maximum allowable radius based on canvas size
+    const margin = 50; // Account for text size
+    const maxAllowedRadius = Math.min(paper.view.size.width - 2 * margin, paper.view.size.height - 2 * margin) * 0.4;
+    
+    const coneHeight = constrain(this.settings.radius * 2, 0, paper.view.size.height - 2 * margin);
+    const maxRadius = Math.min(this.settings.radius, maxAllowedRadius);
     
     for (let level = 0; level < this.settings.nArcs; level++) {
       const y = center.y - coneHeight/2 + (level * coneHeight / this.settings.nArcs);
       const levelRadius = maxRadius * (1 - level / this.settings.nArcs);
+      
+      // Check if y position is within canvas bounds
+      if (y < margin || y > paper.view.size.height - margin) continue;
       
       // Calculate number of elements for this level
       const nElements = Math.max(1, Math.floor(levelRadius / (this.settings.textSpacing / 2)));
