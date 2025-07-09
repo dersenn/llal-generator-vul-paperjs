@@ -1,0 +1,26 @@
+{
+  "name": "llal-generator-vul-paperjs",
+  "version": "1.0.0",
+  "description": "A Paper.js-based volcano graphics generator for creating dynamic, generative art patterns using the LLAL font",
+  "main": "index.html",
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "serve": "python3 -m http.server 8000",
+    "test": "echo \"Open index.html in your browser to test the application\"",
+    "dev": "echo \"Use Live Server extension in VS Code or run 'npm run serve' for development\""
+  },
+  "keywords": ["paperjs", "generative-art", "volcano", "llal", "graphics", "svg", "canvas"],
+  "author": "LLAL Generator Team",
+  "license": "ISC",
+  "dependencies": {
+    "paper": "^0.12.15"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "Local development project"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+} 

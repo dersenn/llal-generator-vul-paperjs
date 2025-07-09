@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LLAL Generator - Vulkan (Paper.js)</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+  <aside id="controls">
+    <div id="sketch-selector">
+      <h3>Sketch Selection</h3>
+      <select id="sketch-select">
+        <!-- Sketch options will be generated dynamically -->
+      </select>
+    </div>
+    <div id="sketch-controls">
+      <!-- Sketch-specific controls will be loaded here -->
+    </div>
+  </aside>
+
+  <div id="hash-display">
+    <!-- Current hash will be displayed here -->
+  </div>
+
+  <!-- Canvas for Paper.js -->
+  <canvas id="paper-canvas" resize></canvas>
+
+  <!-- Paper.js -->
+  <script src="node_modules/paper/dist/paper-full.min.js"></script>
+  
+  <!-- Utilities -->
+  <script src="js/utils.js"></script>
+  <script src="js/hash.js"></script>
+  
+  <!-- Load sketch classes -->
+  <script src="sketches/firework-paperjs.js"></script>
+  <script src="sketches/arc-paperjs.js"></script>
+  <script src="sketches/text-path-paperjs.js"></script>
+  
+  <!-- Load manager and main -->
+  <script src="js/sketch-manager.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html> 
