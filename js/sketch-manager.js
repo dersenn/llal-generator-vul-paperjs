@@ -42,18 +42,6 @@ class SketchManager {
     // Automatically discover and register sketches
     const sketchDefinitions = [
       {
-        name: 'firework-paperjs',
-        displayName: 'Firework (Paper.js)',
-        class: typeof FireworkPaperSketch !== 'undefined' ? FireworkPaperSketch : null,
-        description: 'Firework pattern with LLAL text using Paper.js'
-      },
-      {
-        name: 'arc-paperjs',
-        displayName: 'Arc Text (Paper.js)',
-        class: typeof ArcPaperSketch !== 'undefined' ? ArcPaperSketch : null,
-        description: 'Arc text layout with cone pattern using Paper.js'
-      },
-      {
         name: 'text-path-paperjs',
         displayName: 'Text Path (Paper.js)',
         class: typeof TextPathPaperSketch !== 'undefined' ? TextPathPaperSketch : null,
